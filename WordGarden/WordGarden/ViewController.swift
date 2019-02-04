@@ -15,9 +15,15 @@ class ViewController: UIViewController {
     @IBOutlet weak var guessAmountLabel: UILabel!
     @IBOutlet weak var playAgainButton: UIButton!
     @IBOutlet weak var flowerImage: UIImageView!
+    var wordToGuess = "SWIFT"
+    var lettersGuessed = "B"
+    let maxWrongGuesses = 8
+    var guessesRemaining = 8
+    var guessCount = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        formatUserGuessLabel()
         guessLetterButton.isEnabled = false
         playAgainButton.isHidden = true
     }
@@ -25,6 +31,52 @@ class ViewController: UIViewController {
     func updateUIAfterGuess() {
         guessLetterField.resignFirstResponder()
         guessLetterField.text = ""
+    }
+    
+    func formatUserGuessLabel() {
+        var revealedWord = ""
+        lettersGuessed += guessLetterField.text!
+        
+        for letter in wordToGuess {
+            if lettersGuessed.contains(letter) {
+                revealedWord += "\(letter)"
+            } else {
+                revealedWord += " _"
+            }
+        }
+        revealedWord.removeFirst()
+        userGuessLabel.text = revealedWord
+    }
+    
+    func guessedLetter() {
+       formatUserGuessLabel()
+        guessCount += 1
+        
+        let currentLetterGuessed = guessLetterField.text
+        if !wordToGuess.contains(currentLetterGuessed!) {
+            guessesRemaining -= 1
+            flowerImage.image = UIImage(named: "flower\(guessesRemaining)")
+        }
+        
+        let revealedWord = userGuessLabel.text!
+        if guessesRemaining == 0 {
+            playAgainButton.isHidden = false
+            guessLetterField.isEnabled = false
+            guessLetterButton.isEnabled = false
+            guessAmountLabel.text = "Sorry, You're All Out of Guesses! Try Again?"
+        } else if !revealedWord.contains("_") {
+            playAgainButton.isHidden = false
+            guessLetterField.isEnabled = false
+            guessLetterButton.isEnabled = false
+            guessAmountLabel.text = "Congrats! You've Done It! It Took You \(guessCount) Guesses"
+        } else {
+            let guesses = (guessCount == 1 ? "Guess" : "Guesses")
+//          var guesses = "guesses"
+//          if guessCount == 1 {
+//          guesses = "guess"
+//          } else {
+            guessAmountLabel.text = "You've Made \(guessCount) \(guesses)"
+        }
     }
     
     @IBAction func guessLetterFieldChange(_ sender: UITextField) {
@@ -37,6 +89,7 @@ class ViewController: UIViewController {
     }
     
     @IBAction func doneKeyPressed(_ sender: UITextField) {
+        guessedLetter()
         updateUIAfterGuess()
     }
     
@@ -44,6 +97,15 @@ class ViewController: UIViewController {
         updateUIAfterGuess()
     }
     @IBAction func playAgainButtonPressed(_ sender: Any) {
+        playAgainButton.isHidden = true
+        guessLetterField.isEnabled = true
+        guessLetterButton.isEnabled = false
+        flowerImage.image = UIImage(named: "flower8")
+        guessesRemaining = maxWrongGuesses
+        lettersGuessed = ""
+        formatUserGuessLabel()
+        guessAmountLabel.text = "You've Made 0 Guesses"
+        guessCount = 0
     }
     
 }
